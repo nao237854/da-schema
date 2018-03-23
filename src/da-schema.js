@@ -6,7 +6,7 @@ const extendFunction = function(...args) {
 	return function() {
 		let result;
 		for (let func of listOfFuncs) {
-            if(!result) result = func(...arguments);
+			if (!result) result = func(...arguments);
 		}
 		return result;
 	};
@@ -33,31 +33,31 @@ function createJsObject(schema, jsObject = {}) {
 			return {
 				[key]: 'stringValue'
 			};
-        });
-        
-        const number = extendFunction(base, function(schema, key) {
+		});
+
+		const number = extendFunction(base, function(schema, key) {
 			return {
 				[key]: 1
 			};
-        });
-        
-        const boolean = extendFunction(base, function(schema, key) {
+		});
+
+		const boolean = extendFunction(base, function(schema, key) {
 			return {
 				[key]: true
 			};
 		});
 
 		return {
-            string,
-            number,
-            boolean
+			string,
+			number,
+			boolean
 		};
 	}
 
 	for (let key in schema) {
 		let type = schema[key].type;
 		let generateValueInstance = generateValue();
-        Object.assign(jsObject, generateValueInstance[type](schema[key], key));
+		Object.assign(jsObject, generateValueInstance[type](schema[key], key));
 
 	}
 
@@ -119,17 +119,15 @@ function checkJsObject(jsObject, schema, checkSchema = true) {
 		};
 	}
 
-	function checkProp(obj, schema) {
-		for (let key in schema) {
-			let type = schema[key].type;
-			let validJsObjectEngineInstance = validJsObjectEngine();
-			if (!obj.hasOwnProperty(key)) {
-				throw `Can't find ${key} in object ${JSON.stringify(obj)}`;
-			}
-			validJsObjectEngineInstance[type](obj[key], schema[key], key);
+	for (let key in schema) {
+		let type = schema[key].type;
+		let validJsObjectEngineInstance = validJsObjectEngine();
+		if (!jsObject.hasOwnProperty(key)) {
+			throw `Can't find ${key} in object ${JSON.stringify(jsObject)}`;
 		}
+		validJsObjectEngineInstance[type](jsObject[key], schema[key], key);
 	}
-	checkProp(jsObject, schema);
+
 }
 
 function checkSchema(schema) {
@@ -179,18 +177,16 @@ function checkSchema(schema) {
 		};
 	}
 
-	function checkProp(obj) {
-		for (let key in obj) {
-			let type = obj[key].type;
-			let validSchemaEngineInstance = validSchemaEngine();
-			if (Object.keys(validSchemaEngineInstance)
-				.indexOf(type) === -1) {
-				throw `Type ${type} not implemented`;
-			}
-			validSchemaEngineInstance[type](obj[key], key);
+	for (let key in schema) {
+		let type = schema[key].type;
+		let validSchemaEngineInstance = validSchemaEngine();
+		if (Object.keys(validSchemaEngineInstance)
+			.indexOf(type) === -1) {
+			throw `Type ${type} not implemented`;
 		}
+		validSchemaEngineInstance[type](schema[key], key);
 	}
-	checkProp(schema);
+
 }
 
 module.exports = {
