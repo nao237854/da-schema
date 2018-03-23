@@ -1,5 +1,5 @@
-(function () {
-    function extend(obj, obj2) {
+
+    const extend = function(obj, obj2) {
         for (var key in obj) {
             if (typeof obj == typeof obj2)
                 if (obj[key] !== null && typeof obj[key] === "object") {
@@ -144,21 +144,7 @@
         checkProp(schemaObject);
     }
 
-
-
-    if (typeof module !== 'undefined' && typeof module === 'object' && module.exports !== 'undefined') {
-        exports.checkSchema = checkSchema;
-        exports.checkJsObject = checkJsObject;
-        exports.default = {
-            checkJsObject,
-            checkSchema
-        }
-    }
-
-    if (typeof window !== 'undefined' && typeof window === 'object') {
-        window.daSchema = {
-            checkJsObject,
-            checkSchema
-        };
-    }
-});
+    module.exports = {
+        checkSchema,
+        checkJsObject
+      }
