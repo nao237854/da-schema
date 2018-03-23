@@ -64,8 +64,8 @@ function createJsObject(schema, jsObject = {}) {
 	return jsObject;
 }
 
-function checkJsObject(jsObject, schema, checkSchema = true) {
-	if (checkSchema) checkSchema(schema);
+function checkJsObject(jsObject, schema, validSchema = true) {
+	if (validSchema) checkSchema(schema);
 
 	function validJsObjectEngine() {
 		const string = function(objProp, schema, key) {
