@@ -47,11 +47,23 @@
 
 			const object = extendFunction(base, function(jsObj, schema, key) {
 				let newObject = {};
-				if(schema.properties){
-				    newObject[key] = createJsObject(schema.properties, {},false);
-				} else{
+				if (schema.properties) {
+					newObject[key] = createJsObject(schema.properties, {}, false);
+				} else {
 					newObject[key] = {};
 				}
+				return newObject;
+			});
+			const array = extendFunction(base, function(jsObj, schema, key) {
+				let newObject = [];
+				newObject[key] = [];
+				if (schema.items) {
+					schema.items.forEach((prop, index, array) => {
+						let itemValue = generateValue()[prop.type](jsObj, prop, key);
+						newObject[key].push(itemValue[Object.keys(itemValue)[0]]);
+					});
+				}
+
 				return newObject;
 			});
 
@@ -59,7 +71,8 @@
 				string,
 				number,
 				boolean,
-				object
+				object,
+				array
 			};
 		}
 
