@@ -14,8 +14,13 @@
 		};
 	};
 
-	function createJsObject(schema, jsObject = {}, validSchema = true) {
-		if (validSchema) checkSchema(schema);
+	function createJsObject(schema, jsObject = {}, config = {}) {
+		if (!config.notValidateSchema) {
+			let validateSchema = checkSchema(schema);
+			if(!validateSchema.valid){
+				return {valid:false, schema:null, tip:validateSchema.tip+" in a schema"}
+			}
+		}
 
 		function generateValue() {
 
@@ -48,7 +53,7 @@
 			const object = extendFunction(base, function (jsObj, schema, key) {
 				let newObject = {};
 				if (schema.properties) {
-					newObject[key] = createJsObject(schema.properties, {}, false);
+					newObject[key] = createJsObject(schema.properties, {}, {notValidateSchema:true});
 				} else {
 					newObject[key] = {};
 				}
@@ -204,7 +209,7 @@
 						[key]: schema.defaultValue
 					}, {
 						[key]: schema
-					}, false);
+					}, {notValidateSchema:true});
 					if(!validateJsObject.valid){
 						return { valid: false, tip: `Wrong defaultValue at ${key}` };
 					}
