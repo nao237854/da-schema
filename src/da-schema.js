@@ -187,6 +187,7 @@
 					status: 'invalid',
 					tip: 'Missing one of properties: ' + key
 				};
+				config.valid=false;
 			} else {
 				validJsObjectEngineInstance[type](jsObject[key], schema[key], key, config);
 			}
