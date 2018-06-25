@@ -91,7 +91,7 @@
 			console.log("sa1")
 			let validateSchema = checkSchema(schema);
 			if(!validateSchema.valid){
-				return {valid:false, schema:null, tip:validateSchema.tip+" in schema"}
+				return {valid:false, schema:null, tip:validateSchema.tip+" in a schema"}
 			}
 		}
 		config = Object.assign(config, {valid:true})
@@ -197,7 +197,7 @@
 			const base = function (schema, key) {
 				if (schema.hasOwnProperty('optional')) {
 					if (typeof schema.optional !== 'boolean') {
-						return { valid: false, tip: `Incompatibility value of optional option` };
+						return { valid: false, tip: `Incompatibility value of optional option at ${key}` };
 					}
 				}
 				if (schema.hasOwnProperty('defaultValue')) {
