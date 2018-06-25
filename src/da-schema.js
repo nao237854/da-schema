@@ -88,7 +88,6 @@
 
 	function checkJsObject(jsObject, schema, config = {}) {
 		if (!config.notValidateSchema) {
-			console.log("sa1")
 			let validateSchema = checkSchema(schema);
 			if(!validateSchema.valid){
 				return {valid:false, schema:null, tip:validateSchema.tip+" in a schema"}
