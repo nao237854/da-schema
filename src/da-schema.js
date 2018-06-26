@@ -34,13 +34,13 @@
 			};
 			const string = extendFunction(base, function(jsObj, schema, key) {
 				return {
-					[key]: 'stringValue'
+					[key]: ''
 				};
 			});
 
 			const number = extendFunction(base, function(jsObj, schema, key) {
 				return {
-					[key]: 1
+					[key]: 0
 				};
 			});
 
@@ -230,7 +230,8 @@
 					let objProp = schema.properties;
 					for (let key in objProp) {
 						return checkSchema({
-							[key]: objProp[key]
+							type:'object',
+							properties:{[key]: objProp[key]}
 						});
 					}
 				}
