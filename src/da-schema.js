@@ -103,6 +103,7 @@
 
 		function validJsObjectEngine() {
 			const string = function(objProp, schema, key, config) {
+				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
@@ -118,6 +119,7 @@
 				}
 			};
 			const boolean = function(objProp, schema, key, config) {
+				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
@@ -127,6 +129,7 @@
 				}
 			};
 			const number = function(objProp, schema, key, config) {
+				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
@@ -136,6 +139,7 @@
 				}
 			};
 			const object = function(objProp, schema, key, config) {
+				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
@@ -148,6 +152,7 @@
 				}
 			};
 			const array = function(objProp, schema, key, config) {
+				schema.state = {status : 'valid'};
 				if (!Array.isArray(objProp)) {
 					schema.state = {
 						status: 'invalid',
@@ -181,7 +186,7 @@
 		}
 
 		for (let key in schema.properties) {
-			
+			schema.state = {status : 'valid'};
 				let type = schema.properties[key].type;
 				let validJsObjectEngineInstance = validJsObjectEngine();
 				if (!jsObject.hasOwnProperty(key)) {
