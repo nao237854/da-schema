@@ -1,11 +1,11 @@
 ;
 (() => {
-	const extendFunction = function (...args) {
+	const extendFunction = function(...args) {
 		let listOfFuncs = [];
 		for (let func of arguments) {
 			listOfFuncs.push(func);
 		}
-		return function () {
+		return function() {
 			let result;
 			for (let func of listOfFuncs) {
 				if (!result) result = func(...arguments);
@@ -17,14 +17,14 @@
 	function createJsObject(schema, jsObject = {}, config = {}) {
 		if (!config.notValidateSchema) {
 			let validateSchema = checkSchema(schema);
-			if(!validateSchema.valid){
-				return {valid:false, schema:null, tip:validateSchema.tip+" in a schema"}
+			if (!validateSchema.valid) {
+				return { valid: false, schema: null, tip: validateSchema.tip + " in a schema" }
 			}
 		}
 
 		function generateValue() {
 
-			const base = function (jsObj, schema, key) {
+			const base = function(jsObj, schema, key) {
 				if (schema.defaultValue) {
 					return {
 						[key]: schema.defaultValue
@@ -32,34 +32,34 @@
 				}
 
 			};
-			const string = extendFunction(base, function (jsObj, schema, key) {
+			const string = extendFunction(base, function(jsObj, schema, key) {
 				return {
 					[key]: 'stringValue'
 				};
 			});
 
-			const number = extendFunction(base, function (jsObj, schema, key) {
+			const number = extendFunction(base, function(jsObj, schema, key) {
 				return {
 					[key]: 1
 				};
 			});
 
-			const boolean = extendFunction(base, function (jsObj, schema, key) {
+			const boolean = extendFunction(base, function(jsObj, schema, key) {
 				return {
 					[key]: true
 				};
 			});
 
-			const object = extendFunction(base, function (jsObj, schema, key) {
+			const object = extendFunction(base, function(jsObj, schema, key) {
 				let newObject = {};
 				if (schema.properties) {
-					newObject[key] = createJsObject(schema.properties, {}, {notValidateSchema:true});
+					newObject[key] = createJsObject(schema.properties, {}, { notValidateSchema: true });
 				} else {
 					newObject[key] = {};
 				}
 				return newObject;
 			});
-			const array = extendFunction(base, function (jsObj, schema, key) {
+			const array = extendFunction(base, function(jsObj, schema, key) {
 				let newObject = [];
 				newObject[key] = [];
 				if (schema.items) {
@@ -81,11 +81,11 @@
 			};
 		}
 
-		for (let key in schema) {
-			let type = schema[key].type;
+		for (let key in schema.properties) {
+			let type = schema.properties[key].type;
 			let generateValueInstance = generateValue();
 
-			Object.assign(jsObject, generateValueInstance[type](jsObject, schema[key], key));
+			Object.assign(jsObject, generateValueInstance[type](jsObject, schema.properties[key], key));
 		}
 
 		return jsObject;
@@ -94,66 +94,66 @@
 	function checkJsObject(jsObject, schema, config = {}) {
 		if (!config.notValidateSchema) {
 			let validateSchema = checkSchema(schema);
-			if(!validateSchema.valid){
-				return {valid:false, schema:null, tip:validateSchema.tip+" in a schema"}
+			if (!validateSchema.valid) {
+				return { valid: false, schema: null, tip: validateSchema.tip + " in a schema" }
 			}
 		}
-		config = Object.assign(config, {valid:true})
+		config = Object.assign(config, { valid: true })
 		config.notValidateSchema = true;
 
 		function validJsObjectEngine() {
-			const string = function (objProp, schema, key, config) {
+			const string = function(objProp, schema, key, config) {
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a string'
 					};
-					config.valid=false;
+					config.valid = false;
 				} else if (!schema.optional && objProp === "") {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must not be empty'
 					};
-					config.valid=false;
+					config.valid = false;
 				}
 			};
-			const boolean = function (objProp, schema, key, config) {
+			const boolean = function(objProp, schema, key, config) {
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a boolean'
 					};
-					config.valid=false;
+					config.valid = false;
 				}
 			};
-			const number = function (objProp, schema, key, config) {
+			const number = function(objProp, schema, key, config) {
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a number'
 					};
-					config.valid=false;
+					config.valid = false;
 				}
 			};
-			const object = function (objProp, schema, key, config) {
+			const object = function(objProp, schema, key, config) {
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a string'
 					};
-					config.valid=false;
+					config.valid = false;
 				}
 				if (schema.properties) {
-					checkJsObject(objProp, schema.properties,config);
+					checkJsObject(objProp, schema.properties, config);
 				}
 			};
-			const array = function (objProp, schema, key, config) {
+			const array = function(objProp, schema, key, config) {
 				if (!Array.isArray(objProp)) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be an array'
 					};
-					config.valid=false;
+					config.valid = false;
 				}
 				if (schema.items) {
 					objProp.forEach((prop, index, array) => {
@@ -166,7 +166,8 @@
 							}
 							return finalIndex;
 						}
-						checkJsObject({ arraySubProp: prop }, { arraySubProp: schema.items[returnIndex(index, schema.items.length)] },config);
+						checkJsObject({ arraySubProp: prop }, { arraySubProp: schema.items[returnIndex(index, schema.items.length)] },
+							config);
 					});
 				}
 			};
@@ -179,27 +180,27 @@
 			};
 		}
 
-		for (let key in schema) {
-			let type = schema[key].type;
-			let validJsObjectEngineInstance = validJsObjectEngine();
-			if (!jsObject.hasOwnProperty(key)) {
-				schema.state = {
-					status: 'invalid',
-					tip: 'Missing one of properties: ' + key
-				};
-				config.valid=false;
-			} else {
-				validJsObjectEngineInstance[type](jsObject[key], schema[key], key, config);
-			}
-
+		for (let key in schema.properties) {
+			
+				let type = schema.properties[key].type;
+				let validJsObjectEngineInstance = validJsObjectEngine();
+				if (!jsObject.hasOwnProperty(key)) {
+					schema.state = {
+						status: 'invalid',
+						tip: 'Missing one of properties: ' + key
+					};
+					config.valid = false;
+				} else {
+					validJsObjectEngineInstance[type](jsObject[key], schema.properties[key], key, config);
+				}
 		}
-		return {valid:config.valid, schema:schema};
+		return { valid: config.valid, schema: schema };
 
 	}
 
 	function checkSchema(schema) {
 		function validSchemaEngine() {
-			const base = function (schema, key) {
+			const base = function(schema, key) {
 				if (schema.hasOwnProperty('optional')) {
 					if (typeof schema.optional !== 'boolean') {
 						return { valid: false, tip: `Incompatibility value of optional option at ${key}` };
@@ -210,16 +211,16 @@
 						[key]: schema.defaultValue
 					}, {
 						[key]: schema
-					}, {notValidateSchema:true});
-					if(!validateJsObject.valid){
+					}, { notValidateSchema: true });
+					if (!validateJsObject.valid) {
 						return { valid: false, tip: `Wrong defaultValue at ${key}` };
 					}
 				}
 			};
-			const string = extendFunction(base, function (schema, key) { return { valid: true } });
-			const boolean = extendFunction(base, function (schema, key) { return { valid: true } });
-			const number = extendFunction(base, function (schema, key) { return { valid: true } });
-			const object = extendFunction(base, function (schema, key) {
+			const string = extendFunction(base, function(schema, key) { return { valid: true } });
+			const boolean = extendFunction(base, function(schema, key) { return { valid: true } });
+			const number = extendFunction(base, function(schema, key) { return { valid: true } });
+			const object = extendFunction(base, function(schema, key) {
 				if (schema.hasOwnProperty('properties')) {
 					let objProp = schema.properties;
 					for (let key in objProp) {
@@ -230,7 +231,7 @@
 				}
 				return { valid: true }
 			});
-			const array = extendFunction(base, function (schema, key) {
+			const array = extendFunction(base, function(schema, key) {
 				if (schema.hasOwnProperty('items')) {
 					schema.items.forEach((prop, index, array) => {
 						return checkSchema({
@@ -249,17 +250,16 @@
 			};
 		}
 
-		for (let key in schema) {
-			let type = schema[key].type;
+		for (let key in schema.properties) {
+			let type = schema.properties[key].type;
 			let validSchemaEngineInstance = validSchemaEngine();
 			if (Object.keys(validSchemaEngineInstance)
 				.indexOf(type) === -1) {
 				return { valid: false, tip: `Type ${type} not implemented` };
 			} else {
-				return validSchemaEngineInstance[type](schema[key], key);
+				return validSchemaEngineInstance[type](schema.properties[key], key);
 			}
 		}
-
 
 	}
 
