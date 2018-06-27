@@ -24,7 +24,7 @@
 
 		function generateValue() {
 
-			const base = function(jsObj, schema, key) {
+			const base = function(jsObj, schema, key, config) {
 				if (schema.defaultValue) {
 					return {
 						[key]: schema.defaultValue
@@ -32,34 +32,34 @@
 				}
 
 			};
-			const string = extendFunction(base, function(jsObj, schema, key) {
-				return {
-					[key]: ''
-				};
+			const string = extendFunction(base, function(jsObj, schema, key, config) {
+				if(config.empty) return {[key]: ''};
+				else return {[key]: 'stringValue'};
+				
 			});
 
-			const number = extendFunction(base, function(jsObj, schema, key) {
+			const number = extendFunction(base, function(jsObj, schema, key, config) {
 				return {
 					[key]: 0
 				};
 			});
 
-			const boolean = extendFunction(base, function(jsObj, schema, key) {
+			const boolean = extendFunction(base, function(jsObj, schema, key, config) {
 				return {
 					[key]: true
 				};
 			});
 
-			const object = extendFunction(base, function(jsObj, schema, key) {
+			const object = extendFunction(base, function(jsObj, schema, key, config) {
 				let newObject = {};
 				if (schema.properties) {
-					newObject[key] = createJsObject(schema.properties, {}, { notValidateSchema: true });
+					newObject[key] = createJsObject(schema.properties, {}, config);
 				} else {
 					newObject[key] = {};
 				}
 				return newObject;
 			});
-			const array = extendFunction(base, function(jsObj, schema, key) {
+			const array = extendFunction(base, function(jsObj, schema, key, config) {
 				let newObject = [];
 				newObject[key] = [];
 				if (schema.items) {
@@ -85,7 +85,7 @@
 			let type = schema.properties[key].type;
 			let generateValueInstance = generateValue();
 
-			Object.assign(jsObject, generateValueInstance[type](jsObject, schema.properties[key], key));
+			Object.assign(jsObject, generateValueInstance[type](jsObject, schema.properties[key], key, config));
 		}
 
 		return jsObject;
