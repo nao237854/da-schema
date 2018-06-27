@@ -53,7 +53,7 @@
 			const object = extendFunction(base, function(jsObj, schema, key, config) {
 				let newObject = {};
 				if (schema.properties) {
-					newObject[key] = createJsObject(schema.properties, {}, config);
+					newObject[key] = createJsObject({properties:schema.properties, type:'object'}, {}, config);
 				} else {
 					newObject[key] = {};
 				}
