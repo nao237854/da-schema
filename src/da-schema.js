@@ -98,7 +98,9 @@
 				return { valid: false, schema: null, tip: validateSchema.tip + " in a schema" }
 			}
 		}
-		config = Object.assign(config, { valid: true })
+		if(config.valid == undefined) {
+			config.valid = true;
+		}
 		config.notValidateSchema = true;
 
 		function validJsObjectEngine() {
