@@ -1,11 +1,14 @@
 {
   "name": "da-schema",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Da'Schema",
   "main": "index.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/naodesign/da-schema.git"
+  },
+  "scripts": {
+    "debug": "node --nolazy --inspect-brk=9229 index.js"
   },
   "keywords": [
     "json",
