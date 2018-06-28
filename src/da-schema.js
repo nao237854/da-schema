@@ -102,7 +102,7 @@
 		config.notValidateSchema = true;
 
 		function validJsObjectEngine() {
-			const string = function(objProp, schema, key, config) {
+			const string = function(objProp, schema, config) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
@@ -118,7 +118,7 @@
 					config.valid = false;
 				}
 			};
-			const boolean = function(objProp, schema, key, config) {
+			const boolean = function(objProp, schema, config) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
@@ -128,7 +128,7 @@
 					config.valid = false;
 				}
 			};
-			const number = function(objProp, schema, key, config) {
+			const number = function(objProp, schema, config) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
@@ -138,7 +138,7 @@
 					config.valid = false;
 				}
 			};
-			const object = function(objProp, schema, key, config) {
+			const object = function(objProp, schema, config) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
@@ -148,10 +148,26 @@
 					config.valid = false;
 				}
 				if (schema.properties) {
-					checkJsObject(objProp, schema.properties, config);
+
+					for (let key in schema.properties) {
+						schema.state = {status : 'valid'};
+							
+							if (!objProp.hasOwnProperty(key)) {
+								schema.state = {
+									status: 'invalid',
+									tip: 'Missing one of properties: ' + key
+								};
+								config.valid = false;
+							}
+							checkJsObject(objProp[key], schema.properties[key], config);
+					}
+
+					
 				}
+
+				return {valid:config.valid, schema:schema};
 			};
-			const array = function(objProp, schema, key, config) {
+			const array = function(objProp, schema, config) {
 				schema.state = {status : 'valid'};
 				if (!Array.isArray(objProp)) {
 					schema.state = {
@@ -171,7 +187,7 @@
 							}
 							return finalIndex;
 						}
-						checkJsObject({ arraySubProp: prop }, { arraySubProp: schema.items[returnIndex(index, schema.items.length)] },
+						checkJsObject({ arraySubProp: prop }, schema.items[returnIndex(index, schema.items.length)],
 							config);
 					});
 				}
@@ -185,21 +201,8 @@
 			};
 		}
 
-		for (let key in schema.properties) {
-			schema.state = {status : 'valid'};
-				let type = schema.properties[key].type;
-				let validJsObjectEngineInstance = validJsObjectEngine();
-				if (!jsObject.hasOwnProperty(key)) {
-					schema.state = {
-						status: 'invalid',
-						tip: 'Missing one of properties: ' + key
-					};
-					config.valid = false;
-				} else {
-					validJsObjectEngineInstance[type](jsObject[key], schema.properties[key], key, config);
-				}
-		}
-		return { valid: config.valid, schema: schema };
+		let validJsObjectEngineInstance = validJsObjectEngine();
+		validJsObjectEngineInstance[schema.type](jsObject, schema, config);
 
 	}
 
