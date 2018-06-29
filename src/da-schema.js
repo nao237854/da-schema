@@ -93,92 +93,93 @@
 
 	function checkJsObject(jsObject, schema, config = {}) {
 		if (!config.notValidateSchema) {
-			let validateSchema = checkSchema(schema);
+			const validateSchema = checkSchema(schema);
 			if (!validateSchema.valid) {
 				return { valid: false, schema: null, tip: validateSchema.tip + " in a schema" }
 			}
 		}
-		if(config.valid == undefined) {
-			config.valid = true;
-		}
-		config.notValidateSchema = true;
+
+		let status= {valid:true};
 
 		function validJsObjectEngine() {
-			const string = function(objProp, schema, config) {
+			const string = function(objProp, schema, status) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a string'
 					};
-					config.valid = false;
+					status.valid = false;
 				} else if (!schema.optional && objProp === "") {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must not be empty'
 					};
-					config.valid = false;
+					status.valid = false;
 				}
 			};
-			const boolean = function(objProp, schema, config) {
+			const boolean = function(objProp, schema, status) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a boolean'
 					};
-					config.valid = false;
+					status.valid = false;
 				}
 			};
-			const number = function(objProp, schema, config) {
+			const number = function(objProp, schema, status) {
 				schema.state = {status : 'valid'};
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be a number'
 					};
-					config.valid = false;
+					status.valid = false;
 				}
 			};
-			const object = function(objProp, schema, config) {
+			const object = function(objProp, schema, status) {
 				schema.state = {status : 'valid'};
+				console.log(typeof objProp)
 				if (typeof objProp !== schema.type) {
 					schema.state = {
 						status: 'invalid',
-						tip: 'Value must be a string'
+						tip: 'Value must be an object'
 					};
-					config.valid = false;
-				}
-				if (schema.properties) {
-
+					status.valid = false;
+				} else if (schema.properties) {
+					schema.state = {status : 'valid'};
 					for (let key in schema.properties) {
-						schema.state = {status : 'valid'};
-							
 							if (!objProp.hasOwnProperty(key)) {
 								schema.state = {
 									status: 'invalid',
 									tip: 'Missing one of properties: ' + key
 								};
-								config.valid = false;
+								status.valid = false;
+							} else {
+								validJsObjectEngineInstance[schema.properties[key].type](objProp[key], schema.properties[key], status);
 							}
-							checkJsObject(objProp[key], schema.properties[key], config);
+							
 					}
 
 					
 				}
-
-				return {valid:config.valid, schema:schema};
 			};
-			const array = function(objProp, schema, config) {
+			const array = function(objProp, schema, status) {
 				schema.state = {status : 'valid'};
 				if (!Array.isArray(objProp)) {
 					schema.state = {
 						status: 'invalid',
 						tip: 'Value must be an array'
 					};
-					config.valid = false;
-				}
-				if (schema.items) {
+					status.valid = false;
+				} else if(!schema.optional && objProp.length === 0){
+					schema.state = {
+						status: 'invalid',
+						tip: 'Array must not be empty'
+					};
+					status.valid = false;
+				} else if (schema.items) {
 					objProp.forEach((prop, index, array) => {
 						function returnIndex(index, schemaItemLength) {
 							let finalIndex;
@@ -189,8 +190,7 @@
 							}
 							return finalIndex;
 						}
-						checkJsObject({ arraySubProp: prop }, schema.items[returnIndex(index, schema.items.length)],
-							config);
+						validJsObjectEngineInstance[schema.items[returnIndex(index, schema.items.length)].type]( prop , schema.items[returnIndex(index, schema.items.length)], status);
 					});
 				}
 			};
@@ -204,7 +204,9 @@
 		}
 
 		let validJsObjectEngineInstance = validJsObjectEngine();
-		validJsObjectEngineInstance[schema.type](jsObject, schema, config);
+		validJsObjectEngineInstance[schema.type](jsObject, schema, status);
+
+		return {valid:status.valid,schema:schema};
 
 	}
 
