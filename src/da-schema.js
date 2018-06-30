@@ -14,11 +14,15 @@
 		};
 	};
 
-	function createJsObject(schema, jsObject = {}, config = {}) {
+	function createJsObject(schema, config = {}) {
+
+		let tmpSchema = JSON.parse(JSON.stringify(schema));
+		let jsObject = {};
+
 		if (!config.notValidateSchema) {
-			let validateSchema = checkSchema(schema);
+			let validateSchema = checkSchema(tmpSchema);
 			if (!validateSchema.valid) {
-				return null
+				return null;
 			}
 		}
 
@@ -26,7 +30,7 @@
 
 			const base = function (jsObj, schema, config) {
 				if (schema.defaultValue) {
-					return schema.defaultValue
+					return schema.defaultValue;
 				}
 
 			};
@@ -41,7 +45,7 @@
 			});
 
 			const boolean = extendFunction(base, function (jsObj, schema, config) {
-				return true
+				return true;
 			});
 
 			const object = extendFunction(base, function (jsObj, schema, config) {
@@ -78,12 +82,15 @@
 
 
 		let generateValueInstance = generateValue();
-		return generateValueInstance[schema.type](jsObject, schema, config)
+		return generateValueInstance[tmpSchema.type](jsObject, tmpSchema, config);
 	}
 
 	function checkJsObject(jsObject, schema, config = {}) {
+
+		let tmpSchema = JSON.parse(JSON.stringify(schema));
+
 		if (!config.notValidateSchema) {
-			const validateSchema = checkSchema(schema);
+			const validateSchema = checkSchema(tmpSchema);
 			if (!validateSchema.valid) {
 				return { valid: false, schema: validateSchema.schema }
 			}
@@ -192,14 +199,16 @@
 		}
 
 		let validJsObjectEngineInstance = validJsObjectEngine();
-		validJsObjectEngineInstance[schema.type](jsObject, schema, status);
+		validJsObjectEngineInstance[tmpSchema.type](jsObject, tmpSchema, status);
 
-		return { valid: status.valid, schema: schema };
+		return { valid: status.valid, schema: tmpSchema };
 
 	}
 
 	function checkSchema(schema) {
 
+
+		let tmpSchema = JSON.parse(JSON.stringify(schema));
 		let status = { valid: true };
 
 		function validSchemaEngine() {
@@ -254,8 +263,8 @@
 		}
 
 		let validSchemaEngineInstance = validSchemaEngine();
-		validSchemaEngineInstance[schema.type](schema, status);
-		return { valid: status.valid, schema: schema };
+		validSchemaEngineInstance[tmpSchema.type](tmpSchema, status);
+		return { valid: status.valid, schema: tmpSchema };
 
 	}
 
