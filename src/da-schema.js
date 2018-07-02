@@ -61,7 +61,7 @@
 			});
 			const array = extendFunction(base, function (jsObj, schema, config) {
 				let newArray = [];
-				if (schema.items) {
+				if (schema.items && schema.defaultValue) {
 					schema.items.forEach((prop, index, array) => {
 						let itemValue = generateValueInstance[prop.type](jsObj, prop, config);
 						newArray.push(itemValue[Object.keys(itemValue)[0]]);
