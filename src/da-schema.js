@@ -99,44 +99,56 @@
 		let status = { valid: true };
 
 		function validJsObjectEngine() {
-			const string = function (objProp, schema, status) {
-				schema.warnings = [];
+			const string = function (objProp, schema, status, data={},config={}) {
+				if(!config.notClearWarrnings){
+					schema.warnings = [];
+				}
 				if (typeof objProp !== schema.type) {
 					schema.warnings.push({
 						status: 'invalid',
-						tip: 'Value must be a string'
+						tip: 'Value must be a string',
+						data:data
 					});
 					status.valid = false;
 				} else if (!schema.optional && objProp === "") {
 					schema.warnings.push({
 						status: 'invalid',
-						tip: 'Value must not be empty'
+						tip: 'Value must not be empty',
+						data:data
 					});
 					status.valid = false;
 				}
 			};
-			const boolean = function (objProp, schema, status) {
-				schema.warnings = []
+			const boolean = function (objProp, schema, status, data={},config={}) {
+				if(!config.notClearWarrnings){
+					schema.warnings = [];
+				}
 				if (typeof objProp !== schema.type) {
 					schema.warnings.push({
 						status: 'invalid',
-						tip: 'Value must be a boolean'
+						tip: 'Value must be a boolean',
+						data:data
 					});
 					status.valid = false;
 				}
 			};
-			const number = function (objProp, schema, status) {
-				schema.warnings = []
+			const number = function (objProp, schema, status, data={},config={}) {
+				if(!config.notClearWarrnings){
+					schema.warnings = [];
+				}
 				if (typeof objProp !== schema.type) {
 					schema.warnings.push({
 						status: 'invalid',
-						tip: 'Value must be a number'
+						tip: 'Value must be a number',
+						data:data
 					});
 					status.valid = false;
 				}
 			};
-			const object = function (objProp, schema, status) {
-				schema.warnings = []
+			const object = function (objProp, schema, status,data={},config={}) {
+				if(!config.notClearWarrnings){
+					schema.warnings = [];
+				}
 				if (typeof objProp !== schema.type) {
 					schema.warnings.push({
 						status: 'invalid',
@@ -160,8 +172,10 @@
 
 				}
 			};
-			const array = function (objProp, schema, status) {
-				schema.warnings = []
+			const array = function (objProp, schema, status, data={},config={}) {
+				if(!config.notClearWarrnings){
+					schema.warnings = [];
+				}
 				if (!Array.isArray(objProp)) {
 					schema.warnings.push =({
 						status: 'invalid',
@@ -175,6 +189,7 @@
 					});
 					status.valid = false;
 				} else if (schema.items) {
+					schema.items.forEach((prop, index, array) => { prop.warnings = []; });
 					objProp.forEach((prop, index, array) => {
 						function returnIndex(index, schemaItemLength) {
 							let finalIndex;
@@ -185,7 +200,7 @@
 							}
 							return finalIndex;
 						}
-						validJsObjectEngineInstance[schema.items[returnIndex(index, schema.items.length)].type](prop, schema.items[returnIndex(index, schema.items.length)], status);
+						validJsObjectEngineInstance[schema.items[returnIndex(index, schema.items.length)].type](prop, schema.items[returnIndex(index, schema.items.length)], status, {name:index},{notClearWarrnings:true});
 					});
 				}
 			};
