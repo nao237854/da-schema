@@ -41,7 +41,8 @@
 			});
 
 			const number = extendFunction(base, function (jsObj, schema, config) {
-				return 0;
+				if (config.empty) return null;
+				else return 0
 			});
 
 			const boolean = extendFunction(base, function (jsObj, schema, config) {
