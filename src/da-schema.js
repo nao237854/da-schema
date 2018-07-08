@@ -8,7 +8,7 @@
 		return function () {
 			let result;
 			for (let func of listOfFuncs) {
-				if (!result) result = func(...arguments);
+				if (typeof result === 'undefined') result = func(...arguments);
 			}
 			return result;
 		};
@@ -29,7 +29,7 @@
 		function generateValue() {
 
 			const base = function (jsObj, schema, config) {
-				if (schema.defaultValue) {
+				if (typeof schema.defaultValue !== 'undefined') {
 					return schema.defaultValue;
 				}
 
