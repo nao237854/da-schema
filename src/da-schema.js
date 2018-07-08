@@ -194,7 +194,7 @@
 						function returnIndex(index, schemaItemLength) {
 							let finalIndex;
 							if (index >= schemaItemLength) {
-								finalIndex = index - schemaItemLength;
+								finalIndex = index - (Math.floor(index/schemaItemLength)*schemaItemLength);
 							} else {
 								finalIndex = index;
 							}
