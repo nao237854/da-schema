@@ -183,7 +183,7 @@
 						tip: 'Value must be an array'
 					});
 					status.valid = false;
-				} else if (!schema.optional && objProp.length === 0) {
+				} else if (!schema.optional && objProp === null) {
 					schema.warnings.push({
 						status: 'invalid',
 						tip: 'Array must not be empty'
