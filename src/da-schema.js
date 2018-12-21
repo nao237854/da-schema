@@ -158,15 +158,18 @@
 					status.valid = false;
 				} else if (schema.properties) {
 					for (let key in schema.properties) {
-						if (!objProp.hasOwnProperty(key)) {
-							schema.warnings.push({
-								status: 'invalid',
-								tip: 'Missing one of properties: ' + key
-							});
-							status.valid = false;
-						} else {
-							validJsObjectEngineInstance[schema.properties[key].type](objProp[key], schema.properties[key], status);
+						if(!schema.properties[key].optional){
+							if (!objProp.hasOwnProperty(key)) {
+								schema.warnings.push({
+									status: 'invalid',
+									tip: 'Missing one of properties: ' + key
+								});
+								status.valid = false;
+							} else {
+								validJsObjectEngineInstance[schema.properties[key].type](objProp[key], schema.properties[key], status);
+							}
 						}
+						
 
 					}
 
